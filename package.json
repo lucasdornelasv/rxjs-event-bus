@@ -1,9 +1,9 @@
 {
-  "name": "rxjs-event-bus",
+  "name": "rxjs-eventbus",
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lucasdornelasv/rxjs-event-bus"
+    "url": "https://github.com/lucasdornelasv/rxjs-eventbus"
   },
   "author": "Lucas Dornelas",
   "license": "MIT",
