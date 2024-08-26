@@ -8,7 +8,7 @@ describe('RxEventBus', () => {
 	});
 
 	afterEach(() => {
-		eventBus.destroy();
+		eventBus.dispose();
 	});
 
 	test('Should emit event', (done) => {
