@@ -30,6 +30,7 @@
     // Project layout
     "rootDir": "src",
     "typeRoots": ["node_modules/@types"],
+    "types": ["node"],
     "lib": [
       "ESNext",
       "DOM"

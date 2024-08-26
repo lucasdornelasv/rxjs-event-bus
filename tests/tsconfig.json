@@ -3,6 +3,8 @@
   "references": [{ "path": ".." }],
   "include": ["."],
   "compilerOptions": {
+    "target": "ES2023",
+    "types": ["node", "jest"],
     "tsBuildInfoFile": "node_modules/.cache/.tsbuildinfo.test"
   }
 }

@@ -9,8 +9,8 @@ import {
 import { finalize, share, takeUntil } from 'rxjs/operators';
 
 export class RxEventBus {
-	private _subjectsMap = new Map<string, Subject<any>>();
-	private _observablesMap = new Map<string, Observable<any>>();
+	private _subjectsMap = new Map<any, Subject<any>>();
+	private _observablesMap = new Map<any, Observable<any>>();
 
 	private _destroyed = false;
 
@@ -21,7 +21,7 @@ export class RxEventBus {
 	private _destroySubject = new Subject<void>();
 	private _destroySubscription = new Subscription();
 
-	emitDelayed(delay: number, eventType: string, payload?: any) {
+	emitDelayed(delay: number, eventType: any, payload?: any) {
 		this._destroySubscription.add(
 			asyncScheduler.schedule(() => {
 				this.emit(eventType, payload);
@@ -29,11 +29,11 @@ export class RxEventBus {
 		);
 	}
 
-	emit(eventType: string, payload?: any) {
+	emit(eventType: any, payload?: any) {
 		this._subjectsMap.get(eventType)?.next(payload);
 	}
 
-	on<T = any>(...eventTypes: string[]): Observable<T> {
+	on<T = any>(...eventTypes: any[]): Observable<T> {
 		return defer(() => {
 			const observables = eventTypes.map((x) => this._getOrCreateObservable(x));
 
@@ -61,7 +61,7 @@ export class RxEventBus {
 		}
 	}
 
-	private _getOrCreateObservable(eventType: string): Observable<any> {
+	private _getOrCreateObservable(eventType: any): Observable<any> {
 		let observable: Observable<any>;
 		if (this._observablesMap.has(eventType)) {
 			observable = this._observablesMap.get(eventType);
@@ -81,7 +81,7 @@ export class RxEventBus {
 		return observable;
 	}
 
-	private _getOrCreateSubject(eventType: string): Subject<any> {
+	private _getOrCreateSubject(eventType: any): Subject<any> {
 		let subject: Subject<any>;
 		if (this._subjectsMap.has(eventType)) {
 			subject = this._subjectsMap.get(eventType);
