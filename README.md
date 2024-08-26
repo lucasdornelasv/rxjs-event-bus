@@ -3,35 +3,21 @@
 **With npm:**
 
 ```typescript
-npm install --save @rxjs-toolkit/filereader
+npm install --save @rxjs-toolkit/eventbus
 ```
 
 ## EXAMPLES
 
 ```typescript
-import { RxFileReader, ProgressEventLike } from '@rxjs-toolkit/filereader';
-import { filter, map } from 'rxjs';
+import { RxEventBus } from '@rxjs-toolkit/eventbus';
 
-let file: File;
+const eventBus = new RxEventBus();
 
-RxFileReader.readAsDataURL(file).subscribe((dataUrl: string) => {
-	console.log('dataUrl', dataUrl);
+eventBus.on('eventName').subscribe((value: number) => {
+	console.log(value);
 });
 
-let file2: File;
-
-RxFileReader.readAsDataURL(file2, true)
-	.pipe(
-		filter((e: ProgressEventLike<string>) => {
-			console.log('Progress', e.loaded);
-
-			return e.completed;
-		}),
-		map((e) => e.result),
-	)
-	.subscribe((dataUrl: string) => {
-		console.log('dataUrl', dataUrl);
-	});
+eventBus.emit('eventName', 5);
 ```
 
 ## CONTRIBUTING

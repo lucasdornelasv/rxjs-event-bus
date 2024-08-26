@@ -1,2 +1,5 @@
+.yalc
+.vscode
+.github
 dist
 node_modules

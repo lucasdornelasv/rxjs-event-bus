@@ -1,31 +1,62 @@
 import {
-	Observable,
-	Subject,
-	Subscription,
 	asyncScheduler,
 	defer,
 	merge,
+	Observable,
+	Subject,
+	Subscription,
 } from 'rxjs';
 import { finalize, share, takeUntil } from 'rxjs/operators';
 
-export class RxEventBus {
+export class RxEventBus implements Disposable {
 	private _subjectsMap = new Map<any, Subject<any>>();
 	private _observablesMap = new Map<any, Observable<any>>();
 
-	private _destroyed = false;
+	private _disposed = false;
 
-	get destroyed() {
-		return this._destroyed;
+	get disposed() {
+		return this._disposed;
 	}
 
-	private _destroySubject = new Subject<void>();
-	private _destroySubscription = new Subscription();
+	private _disposeSubject = new Subject<void>();
+
+	private _disposeSubscription: Subscription;
+	private get disposeSubscription() {
+		if (!this._disposeSubscription) {
+			this._disposeSubscription = new Subscription();
+		}
+
+		return this._disposeSubscription;
+	}
+
+	[Symbol.dispose](): void {
+		this.dispose();
+	}
+
+	dispose() {
+		if (!this.disposed) {
+			this._disposed = true;
+			this._disposeSubject.next();
+			this._disposeSubject.complete();
+			this._disposeSubject.unsubscribe();
+			this._disposeSubscription?.unsubscribe();
+
+			this._subjectsMap.clear();
+			this._observablesMap.clear();
+		}
+	}
 
 	emitDelayed(delay: number, eventType: any, payload?: any) {
-		this._destroySubscription.add(
-			asyncScheduler.schedule(() => {
-				this.emit(eventType, payload);
-			}, delay)
+		const self = new WeakRef(this);
+
+		this.disposeSubscription.add(
+			asyncScheduler.schedule(function () {
+				try {
+					self.deref().emit(eventType, payload);
+				} finally {
+					this.unsubscribe();
+				}
+			}, delay),
 		);
 	}
 
@@ -45,20 +76,7 @@ export class RxEventBus {
 			}
 
 			return observable;
-		}).pipe(takeUntil(this._destroySubject));
-	}
-
-	destroy() {
-		if (!this.destroyed) {
-			this._destroyed = true;
-			this._destroySubject.next();
-			this._destroySubject.complete();
-			this._destroySubject.unsubscribe();
-			this._destroySubscription.unsubscribe();
-
-			this._subjectsMap.clear();
-			this._observablesMap.clear();
-		}
+		}).pipe(takeUntil(this._disposeSubject));
 	}
 
 	private _getOrCreateObservable(eventType: any): Observable<any> {
@@ -73,7 +91,7 @@ export class RxEventBus {
 					self?._subjectsMap?.delete?.(eventType);
 					self?._observablesMap?.delete?.(eventType);
 				}),
-				share()
+				share(),
 			);
 			this._observablesMap.set(eventType, observable);
 		}

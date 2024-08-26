@@ -4,4 +4,3 @@
 node_modules
 dist
 tests
-jest.config.ts
